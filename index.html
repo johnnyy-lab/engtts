@@ -502,9 +502,15 @@
           <div class="form-group">
             <label for="speedSelect">語速 (Speed)</label>
             <select id="speedSelect">
-              <option value="slow">慢 (Slow)</option>
-              <option value="medium" selected>中 (預設)</option>
-              <option value="fast">快 (Fast)</option>
+              <option value="0.5">0.5x ｜ 最慢 (Slowest)</option>
+              <option value="0.65">0.65x ｜ 極慢 (Very Slow)</option>
+              <option value="0.75">0.75x ｜ 較慢 (Slower)</option>
+              <option value="0.9">0.9x ｜ 略慢 (Slightly Slow)</option>
+              <option value="1.0" selected>1.0x ｜ 標準 (預設)</option>
+              <option value="1.15">1.15x ｜ 略快 (Slightly Fast)</option>
+              <option value="1.25">1.25x ｜ 較快 (Faster)</option>
+              <option value="1.5">1.5x ｜ 極快 (Very Fast)</option>
+              <option value="2.0">2.0x ｜ 最快 (Fastest)</option>
             </select>
           </div>
 
@@ -803,7 +809,7 @@
 
       const voice = voiceSelect.value;
       const voiceLabel = voiceSelect.options[voiceSelect.selectedIndex].text;
-      const speed = speedSelect.value;
+      const speedRate = parseFloat(speedSelect.value) || 1.0;
       const speedLabel = speedSelect.options[speedSelect.selectedIndex].text;
       const model = modelSelect.value;
 
@@ -817,9 +823,13 @@
         
         // 根據語速選項加入語意指導標籤
         let speedTag = "";
-        if (speed === "slow") {
+        if (speedRate <= 0.65) {
+          speedTag = "[very slowly] ";
+        } else if (speedRate <= 0.9) {
           speedTag = "[slowly] ";
-        } else if (speed === "fast") {
+        } else if (speedRate >= 1.5) {
+          speedTag = "[very fast] ";
+        } else if (speedRate >= 1.15) {
           speedTag = "[fast] ";
         }
 
@@ -877,7 +887,7 @@
 
         // 啟用播放器並設定對應語速倍率
         audioElement.src = mp3BlobUrl;
-        audioElement.playbackRate = speed === "slow" ? 0.9 : (speed === "fast" ? 1.15 : 1.0);
+        audioElement.playbackRate = speedRate;
         audioElement.load();
         audioElement.play().catch(() => {});
 
@@ -887,7 +897,7 @@
         downloadMp3Btn.href = mp3BlobUrl;
         downloadMp3Btn.download = filename;
 
-        const durationSec = (pcmBytes.length / (24000 * 2)).toFixed(1);
+        const durationSec = ((pcmBytes.length / (24000 * 2)) / speedRate).toFixed(1);
         const sizeKb = (mp3Blob.size / 1024).toFixed(1);
         audioSummary.textContent = `角色：${voiceLabel} ｜ 語速：${speedLabel} ｜ 時長：約 ${durationSec} 秒 ｜ 格式：MP3 (${sizeKb} KB)`;
 
@@ -899,7 +909,7 @@
           text,
           voiceLabel,
           speedLabel,
-          playbackRate: audioElement.playbackRate,
+          playbackRate: speedRate,
           model,
           time: now.toLocaleTimeString(),
           mp3BlobUrl,
@@ -956,6 +966,14 @@
     }
 
     generateBtn.addEventListener("click", generateTTS);
+
+    // 切換語速選單時，若目前已載入音訊，同步即時調整播放器速度
+    speedSelect.addEventListener("change", () => {
+      const newRate = parseFloat(speedSelect.value) || 1.0;
+      if (audioElement && audioElement.src) {
+        audioElement.playbackRate = newRate;
+      }
+    });
   </script>
 </body>
 </html>
