@@ -851,8 +851,16 @@
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          const errMsg = errData.error?.message || `HTTP 錯誤碼: ${res.status}`;
-          throw new Error(errMsg);
+          const rawErrMsg = errData.error?.message || `HTTP 錯誤碼: ${res.status}`;
+          
+          // 針對 Google 免費層級 429 配額頻率限制提供友善提示
+          if (res.status === 429 || rawErrMsg.toLowerCase().includes("quota") || rawErrMsg.toLowerCase().includes("rate_limit")) {
+            const match = rawErrMsg.match(/retry in\s+([\d\.]+)s/i);
+            const secs = match ? Math.ceil(parseFloat(match[1])) : 15;
+            throw new Error(`觸發 Google 免費額度頻率限制（每分鐘限制 10 次）。請等待約 ${secs} 秒後再試，或切換上方其他模型版本！`);
+          }
+          
+          throw new Error(rawErrMsg);
         }
 
         const data = await res.json();
