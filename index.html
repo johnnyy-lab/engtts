@@ -1069,7 +1069,7 @@
             </div>
           </div>
           <div style="font-size: 0.78rem; color: var(--text-muted);">
-            💡 提示：透過 <code>python run_web.py</code> 啟動時，會由本機後端直接擷取 YouTube 高音質音軌送交瀏覽器解碼。
+            💡 提示：支援在 GitHub Pages 純前端直接透過雲端擷取任意 YouTube 影片最高音質音軌（無需安裝任何本機程式，約需 5~15 秒轉換下載）。
           </div>
         </div>
 
@@ -1878,7 +1878,78 @@
         return fallback ? fallback[1] : null;
       }
 
-      // YouTube 音軌載入 (支援本機 run_web.py 後端 + GitHub Pages 靜態/雲端多層自動備援)
+      // 透過雲端轉檔與 CORS 代理擷取任意 YouTube 音軌 (供 GitHub Pages 網路使用者免裝程式直接使用)
+      async function fetchYoutubeViaCloud(videoId) {
+        const proxyWrap = (targetUrl) => `https://cf-proxy.eidoriantan.com/?url=${encodeURIComponent(targetUrl)}`;
+        const ytCanonical = `https://www.youtube.com/watch?v=${videoId}`;
+        const converterHosts = ["https://loader.to", "https://p.savenow.to"];
+
+        let jobId = null;
+        let cloudTitle = null;
+        let activeHost = converterHosts[0];
+
+        // 步驟 A：發起雲端音軌擷取任務 (取 m4a 原生高音質音軌，速度最快且無損原始音訊品質)
+        for (const host of converterHosts) {
+          try {
+            const initUrl = `${host}/ajax/download.php?format=m4a&url=${encodeURIComponent(ytCanonical)}`;
+            const initRes = await fetch(proxyWrap(initUrl));
+            if (!initRes.ok) continue;
+            const initData = await initRes.json();
+            if (initData && initData.success && initData.id) {
+              jobId = initData.id;
+              cloudTitle = initData.title || initData.info?.title || null;
+              activeHost = host;
+              break;
+            }
+          } catch (e) {}
+        }
+
+        if (!jobId) {
+          throw new Error("無法建立雲端 YouTube 音軌擷取任務，請確認網址有效或稍後再試。");
+        }
+
+        // 步驟 B：輪詢雲端任務進度直到取得 download_url
+        let downloadUrl = null;
+        for (let poll = 0; poll < 45; poll++) {
+          await new Promise(r => setTimeout(r, 1400));
+          const pct = Math.min(95, Math.max(5, Math.round(((poll + 1) / 14) * 90)));
+          loadYtBtnText.textContent = `雲端擷取音軌中 (${pct}%)...`;
+
+          try {
+            const progUrl = `${activeHost}/ajax/progress.php?id=${encodeURIComponent(jobId)}`;
+            const progRes = await fetch(proxyWrap(progUrl));
+            if (!progRes.ok) continue;
+            const progData = await progRes.json();
+
+            if (progData && progData.download_url) {
+              downloadUrl = progData.download_url;
+              break;
+            }
+            if (progData && (progData.text === "Error" || progData.error)) {
+              throw new Error(progData.text || "雲端音軌轉換失敗");
+            }
+          } catch (e) {
+            if (e.message && e.message.includes("雲端音軌轉換失敗")) {
+              throw e;
+            }
+          }
+        }
+
+        if (!downloadUrl) {
+          throw new Error("雲端擷取音軌逾時，請稍後重試或確認影片長度。");
+        }
+
+        // 步驟 C：透過 CORS 代理下載完成之音軌二進位資料
+        loadYtBtnText.textContent = "下載音軌資料中...";
+        const dlRes = await fetch(proxyWrap(downloadUrl));
+        if (!dlRes.ok) {
+          throw new Error(`下載音軌串流失敗 (HTTP ${dlRes.status})`);
+        }
+        const buffer = await dlRes.arrayBuffer();
+        return { buffer, title: cloudTitle };
+      }
+
+      // YouTube 音軌載入 (支援 GitHub Pages 雲端直接擷取 + 本機 run_web.py 加速)
       async function handleLoadYoutube() {
         const url = ytUrlInput.value.trim();
         if (!url) {
@@ -1904,7 +1975,7 @@
           let videoTitle = `YouTube_${videoId}`;
           let detectedAbrKbps = 0;
 
-          // 1. 優先嘗試透過 noembed 取得標準影片標題 (純前端支援 CORS)
+          // 1. 優先透過 noembed 取得標準影片標題 (純前端支援 CORS)
           try {
             const oembedRes = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`);
             if (oembedRes.ok) {
@@ -1915,37 +1986,8 @@
             }
           } catch (e) {}
 
-          // 2. 第一層：嘗試連線本機 run_web.py 音軌擷取 API (支援 localhost 直接開啟，或從 GitHub Pages 連回本機 8000 埠)
-          const isLocalOrigin = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-          const localCandidates = isLocalOrigin
-            ? [`/api/youtube-audio?url=${encodeURIComponent(url)}`]
-            : [
-                `http://localhost:8000/api/youtube-audio?url=${encodeURIComponent(url)}`,
-                `http://127.0.0.1:8000/api/youtube-audio?url=${encodeURIComponent(url)}`
-              ];
-
-          for (const endpoint of localCandidates) {
-            try {
-              const res = await fetch(endpoint);
-              if (res.ok) {
-                const rawTitleHeader = res.headers.get("X-Video-Title");
-                if (rawTitleHeader) {
-                  videoTitle = decodeURIComponent(rawTitleHeader);
-                }
-                const rawBitrateHeader = res.headers.get("X-Audio-Bitrate");
-                if (rawBitrateHeader) {
-                  detectedAbrKbps = parseInt(rawBitrateHeader, 10) || 0;
-                }
-                audioArrayBuffer = await res.arrayBuffer();
-                break;
-              }
-            } catch (e) {
-              // 本機伺服器未啟動時自動進入下一層備援
-            }
-          }
-
-          // 3. 第二層 (GitHub Pages 純靜態模式)：若為內建測試影片 zXIxDoCRc84，直接讀取靜態音軌檔 (免啟動本機後端亦可在 GitHub Pages 完美執行)
-          if (!audioArrayBuffer && videoId === "zXIxDoCRc84") {
+          // 2. 若為內建測試影片 zXIxDoCRc84，優先秒讀靜態快取音軌檔
+          if (videoId === "zXIxDoCRc84") {
             try {
               const staticRes = await fetch("yt_zXIxDoCRc84.m4a");
               if (staticRes.ok) {
@@ -1957,41 +1999,32 @@
             } catch (e) {}
           }
 
-          // 4. 第三層：嘗試公開 Piped / Invidious 串流節點備援 (依 bitrate 由高至低排序取最高音質)
-          if (!audioArrayBuffer) {
-            const publicApis = [
-              `https://pipedapi.kavin.rocks/streams/${videoId}`,
-              `https://api.piped.private.coffee/streams/${videoId}`,
-              `https://pipedapi.adminforge.de/streams/${videoId}`
-            ];
-            for (const api of publicApis) {
-              try {
-                const r = await fetch(api);
-                if (!r.ok) continue;
-                const data = await r.json();
-                if (data.title) videoTitle = data.title;
-                const streams = Array.isArray(data.audioStreams)
-                  ? [...data.audioStreams].sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))
-                  : [];
-                const bestStream = streams[0];
-                if (bestStream && bestStream.url) {
-                  const audioRes = await fetch(bestStream.url);
-                  if (audioRes.ok) {
-                    if (bestStream.bitrate) {
-                      detectedAbrKbps = Math.round(bestStream.bitrate / 1000);
-                    }
-                    audioArrayBuffer = await audioRes.arrayBuffer();
-                    break;
-                  }
+          // 3. 若在 localhost 本機伺服器環境下開啟，使用本機 yt-dlp 端點
+          const isLocalOrigin = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+          if (!audioArrayBuffer && isLocalOrigin) {
+            try {
+              const res = await fetch(`/api/youtube-audio?url=${encodeURIComponent(url)}`);
+              if (res.ok) {
+                const rawTitleHeader = res.headers.get("X-Video-Title");
+                if (rawTitleHeader) {
+                  videoTitle = decodeURIComponent(rawTitleHeader);
                 }
-              } catch (e) {}
-            }
+                const rawBitrateHeader = res.headers.get("X-Audio-Bitrate");
+                if (rawBitrateHeader) {
+                  detectedAbrKbps = parseInt(rawBitrateHeader, 10) || 0;
+                }
+                audioArrayBuffer = await res.arrayBuffer();
+              }
+            } catch (e) {}
           }
 
+          // 4. 雲端直接擷取 (GitHub Pages 與任何外部網路使用者免安裝程式即可擷取任意 YouTube 影片音軌)
           if (!audioArrayBuffer) {
-            throw new Error(
-              "目前處於純靜態網頁環境且公開 YouTube 代理節點受限。若要擷取任意 YouTube 連結，請在本機終端機執行 `python run_web.py`（GitHub Pages 網頁會自動連回本機服務擷取），或改用左側「📁 本機電腦載入」功能！"
-            );
+            const cloudResult = await fetchYoutubeViaCloud(videoId);
+            audioArrayBuffer = cloudResult.buffer;
+            if (cloudResult.title && videoTitle === `YouTube_${videoId}`) {
+              videoTitle = cloudResult.title;
+            }
           }
 
           loadYtBtnText.textContent = "解碼音軌波形中...";
