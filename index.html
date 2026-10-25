@@ -420,6 +420,426 @@
     .btn-small:hover {
       background: #475569;
     }
+
+    /* =========================================================================
+       音樂剪輯功能板塊樣式 (Audio Clipper Section)
+       ========================================================================= */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.75rem 0 0.25rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+    }
+
+    .clipper-card {
+      border-color: #0284c7;
+    }
+
+    .source-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .source-tab-btn {
+      background: #0f172a;
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .source-tab-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .source-tab-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+    }
+
+    .source-panel {
+      display: none;
+      margin-bottom: 1.25rem;
+    }
+
+    .source-panel.active {
+      display: block;
+    }
+
+    .file-drop-zone {
+      border: 2px dashed #475569;
+      border-radius: 10px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.65);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .file-drop-zone:hover,
+    .file-drop-zone.dragover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .yt-input-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 640px) {
+      .yt-input-row {
+        flex-direction: column;
+      }
+    }
+
+    .input-text {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .input-text:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn-load-yt {
+      white-space: nowrap;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.35rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-load-yt:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+      transform: translateY(-1px);
+    }
+
+    .btn-load-yt:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .clip-workspace {
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .clip-workspace.active {
+      display: flex;
+    }
+
+    .clip-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .waveform-wrapper {
+      position: relative;
+      background: #090d16;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 0.5rem;
+      user-select: none;
+      touch-action: none;
+    }
+
+    #waveformCanvas {
+      width: 100%;
+      height: 170px;
+      display: block;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .waveform-hint {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 0.45rem;
+      padding: 0 0.25rem;
+    }
+
+    .time-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 680px) {
+      .time-controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .time-control-box {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .time-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .input-seconds {
+      width: 120px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .input-seconds:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Brand-consistent accessible native range slider */
+    input[type="range"].clip-range-slider {
+      --slider-track-size: 0.45rem;
+      --slider-thumb-size: 1.15rem;
+      --slider-track-radius: 999px;
+      --slider-thumb-radius: 50%;
+      --slider-track-color: #334155;
+      --slider-fill-color: #38bdf8;
+      --slider-thumb-color: var(--slider-fill-color);
+      --slider-direction: to right;
+
+      &:dir(rtl) {
+        --slider-direction: to left;
+      }
+
+      --attr-min: attr(min type(<number>), 0);
+      --attr-max: attr(max type(<number>), 100);
+      --control-value: attr(value type(<number>), 0);
+      --slider-progress: calc(
+        progress(var(--control-value), var(--attr-min), var(--attr-max)) * 100%
+      );
+
+      appearance: none;
+      inline-size: 100%;
+      block-size: 2rem;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    @supports not (opacity: progress(1, 0, 100)) {
+      input[type="range"].clip-range-slider {
+        --slider-progress: calc(
+          (var(--control-value) - var(--attr-min)) /
+          (var(--attr-max) - var(--attr-min)) * 100%
+        );
+      }
+    }
+
+    input[type="range"].clip-range-slider.end-slider {
+      --slider-fill-color: #a855f7;
+    }
+
+    /* WebKit/Blink */
+    input[type="range"].clip-range-slider::-webkit-slider-runnable-track {
+      block-size: var(--slider-track-size);
+      border: 0;
+      border-radius: var(--slider-track-radius);
+      background: linear-gradient(
+        var(--slider-direction),
+        var(--slider-fill-color) var(--slider-progress),
+        var(--slider-track-color) var(--slider-progress)
+      );
+    }
+
+    input[type="range"].clip-range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      inline-size: var(--slider-thumb-size);
+      block-size: var(--slider-thumb-size);
+      margin-block-start: calc(
+        (var(--slider-track-size) - var(--slider-thumb-size)) / 2
+      );
+      border: 2px solid #0f172a;
+      border-radius: var(--slider-thumb-radius);
+      background: var(--slider-thumb-color);
+    }
+
+    /* Firefox */
+    input[type="range"].clip-range-slider::-moz-range-track {
+      block-size: var(--slider-track-size);
+      border: 0;
+      border-radius: var(--slider-track-radius);
+      background: var(--slider-track-color);
+    }
+
+    input[type="range"].clip-range-slider::-moz-range-progress {
+      block-size: var(--slider-track-size);
+      border-radius: var(--slider-track-radius);
+      background: var(--slider-fill-color);
+    }
+
+    input[type="range"].clip-range-slider::-moz-range-thumb {
+      inline-size: var(--slider-thumb-size);
+      block-size: var(--slider-thumb-size);
+      border: 2px solid #0f172a;
+      border-radius: var(--slider-thumb-radius);
+      background: var(--slider-thumb-color);
+    }
+
+    input[type="range"].clip-range-slider:focus-visible {
+      outline: 2px solid var(--slider-fill-color);
+      outline-offset: 4px;
+    }
+
+    .clip-actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+    }
+
+    .preview-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-preview {
+      background: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn-preview:hover {
+      background: #0369a1;
+    }
+
+    .export-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    @media (max-width: 680px) {
+      .export-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-export-mp3 {
+      width: 100%;
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-export-mp3:hover:not(:disabled) {
+      background: linear-gradient(135deg, #047857, #059669);
+      transform: translateY(-1px);
+    }
+
+    .btn-export-mp3:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -573,6 +993,233 @@
           本次生成歷程 (MP3)
         </div>
         <div class="history-list" id="historyList"></div>
+      </div>
+
+      <!-- =====================================================================
+           獨立功能板塊：音樂剪輯工具 (本機影音 / YouTube 音軌擷取與裁切)
+           ===================================================================== -->
+      <div class="section-divider">🎵 獨立音樂剪輯工作區（與上方 TTS 語音產生功能各自獨立）</div>
+
+      <div class="card clipper-card" id="musicClipperCard">
+        <div class="card-title" style="justify-content: space-between; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+            </svg>
+            <span>音樂剪輯與音軌擷取 (輸出 MP3)</span>
+          </div>
+          <span style="font-size: 0.78rem; font-weight: 400; color: var(--text-muted);">支援本機多元影音檔 (僅取音軌) 或 YouTube 連結</span>
+        </div>
+
+        <!-- 獨立狀態提示 -->
+        <div id="clipAlertBox" class="alert" style="margin-bottom: 1rem;"></div>
+
+        <!-- 輸入來源切換 Tabs -->
+        <div class="source-tabs">
+          <button type="button" class="source-tab-btn active" id="tabLocalBtn">
+            📁 本機電腦載入 (影音檔僅讀音軌)
+          </button>
+          <button type="button" class="source-tab-btn" id="tabYoutubeBtn">
+            ▶️ YouTube 連結載入 (只取音軌)
+          </button>
+        </div>
+
+        <!-- 來源 1：本機檔案載入 -->
+        <div class="source-panel active" id="panelLocalSource">
+          <input
+            type="file"
+            id="localMediaInput"
+            accept="audio/*,video/*,.mp3,.wav,.ogg,.m4a,.aac,.flac,.wma,.mp4,.mkv,.webm,.mov,.avi,.wmv,.flv,.m4v,.3gp"
+            style="display: none;"
+          >
+          <div class="file-drop-zone" id="fileDropZone">
+            <svg width="36" height="36" fill="none" stroke="#38bdf8" viewBox="0 0 24 24" style="margin: 0 auto 0.5rem; display: block;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+              點擊選擇檔案，或將影音檔案拖曳至此處
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+              支援 MP3, WAV, M4A, AAC, FLAC, OGG, MP4, MKV, WebM, MOV, AVI 等多種影音格式（自動僅擷取音軌）
+            </div>
+          </div>
+        </div>
+
+        <!-- 來源 2：YouTube 連結載入 -->
+        <div class="source-panel" id="panelYoutubeSource">
+          <div class="form-group" style="margin-bottom: 0.65rem;">
+            <label for="ytUrlInput">
+              <span>YouTube 影片或音樂連結（自動擷取音軌）</span>
+              <button type="button" id="fillTestUrlBtn" class="btn-small" style="font-size: 0.75rem; padding: 0.2rem 0.55rem;">
+                帶入測試網址
+              </button>
+            </label>
+            <div class="yt-input-row">
+              <input
+                type="url"
+                id="ytUrlInput"
+                class="input-text"
+                placeholder="請貼上 YouTube 網址，例如：https://www.youtube.com/watch?v=..."
+                autocomplete="off"
+              >
+              <button type="button" id="loadYtBtn" class="btn-load-yt">
+                <span id="loadYtBtnText">載入 YouTube 音軌</span>
+                <span id="loadYtSpinner" class="spinner" style="display: none;"></span>
+              </button>
+            </div>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted);">
+            💡 提示：透過 <code>python run_web.py</code> 啟動時，會由本機後端直接擷取 YouTube 高音質音軌送交瀏覽器解碼。
+          </div>
+        </div>
+
+        <!-- 剪輯處理與輸出工作區 (載入音軌後顯示) -->
+        <div class="clip-workspace" id="clipWorkspace">
+          <!-- 音軌資訊列 -->
+          <div class="clip-meta-bar">
+            <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+              <span style="color: var(--accent); font-weight: 600;">🎵 來源：</span>
+              <span id="clipSourceTitle" style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px;">未載入</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.85rem; color: var(--text-muted); flex-wrap: wrap;">
+              <span id="clipAudioSpecs">-- Hz / -- 聲道</span>
+              <span>總長度：<strong id="clipTotalDuration" style="color: var(--text-main);">0.00 秒</strong></span>
+              <span>已選區間：<strong id="clipSelectedDuration" style="color: #34d399;">0.00 秒</strong></span>
+            </div>
+          </div>
+
+          <!-- 音軌波形與時間軸畫布 -->
+          <div>
+            <div class="waveform-wrapper">
+              <canvas id="waveformCanvas" width="800" height="170"></canvas>
+            </div>
+            <div class="waveform-hint">
+              <span>🖱️ 可直接在波形圖上<strong>拖拉藍色(起點) / 紫色(終點)標記線</strong>，或點擊波形任意處定位試聽游標</span>
+              <span id="clipPlayheadReadout" style="color: #facc15; font-weight: 600;">目前游標：00:00.0 (0.0s)</span>
+            </div>
+          </div>
+
+          <!-- 開始時間與結束時間設定 (拖拉滑桿 + 直接輸入秒數) -->
+          <div class="time-controls-grid">
+            <!-- 開始時間 -->
+            <div class="time-control-box">
+              <label for="clipStartRange">
+                <span style="color: #38bdf8; font-weight: 600;">🟦 開始時間 (Start)</span>
+                <span id="clipStartFormatted" style="font-family: monospace; color: var(--text-main);">00:00.0</span>
+              </label>
+              <input
+                type="range"
+                id="clipStartRange"
+                class="clip-range-slider start-slider"
+                min="0"
+                max="100"
+                step="0.1"
+                value="0"
+              >
+              <div class="time-input-row">
+                <label for="clipStartInput" style="font-size: 0.82rem; white-space: nowrap;">直接輸入秒數：</label>
+                <input
+                  type="number"
+                  id="clipStartInput"
+                  class="input-seconds"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value="0.0"
+                >
+                <span style="font-size: 0.82rem; color: var(--text-muted);">秒</span>
+                <button type="button" id="setStartToPlayheadBtn" class="btn-small" style="margin-left: auto;" title="將目前播放游標位置設為開始時間">
+                  設為游標處
+                </button>
+              </div>
+            </div>
+
+            <!-- 結束時間 -->
+            <div class="time-control-box">
+              <label for="clipEndRange">
+                <span style="color: #c084fc; font-weight: 600;">🟪 結束時間 (End)</span>
+                <span id="clipEndFormatted" style="font-family: monospace; color: var(--text-main);">00:00.0</span>
+              </label>
+              <input
+                type="range"
+                id="clipEndRange"
+                class="clip-range-slider end-slider"
+                min="0"
+                max="100"
+                step="0.1"
+                value="100"
+              >
+              <div class="time-input-row">
+                <label for="clipEndInput" style="font-size: 0.82rem; white-space: nowrap;">直接輸入秒數：</label>
+                <input
+                  type="number"
+                  id="clipEndInput"
+                  class="input-seconds"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value="0.0"
+                >
+                <span style="font-size: 0.82rem; color: var(--text-muted);">秒</span>
+                <button type="button" id="setEndToPlayheadBtn" class="btn-small" style="margin-left: auto;" title="將目前播放游標位置設為結束時間">
+                  設為游標處
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 試聽控制列 -->
+          <div class="clip-actions-bar">
+            <div class="preview-btn-group">
+              <button type="button" id="clipPreviewBtn" class="btn-preview">
+                ▶ 試聽選取區間
+              </button>
+              <button type="button" id="clipStopBtn" class="btn-small" style="padding: 0.55rem 0.9rem;">
+                ⏹ 停止並回起點
+              </button>
+              <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.85rem; color: var(--text-main); margin-left: 0.25rem;">
+                <input type="checkbox" id="clipLoopCheck" style="accent-color: var(--accent); width: 15px; height: 15px;">
+                <span>🔁 循環試聽選取區間</span>
+              </label>
+            </div>
+            <div>
+              <button type="button" id="clipResetFullBtn" class="btn-small">
+                ↺ 重置為完整音軌
+              </button>
+            </div>
+          </div>
+
+          <!-- 輸出檔名與 MP3 匯出下載 -->
+          <div class="export-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="clipFilenameInput">
+                <span>輸出 MP3 檔案名稱（可自由修改）</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">192kbps 高音質 ｜ 自動加 .mp3</span>
+              </label>
+              <input
+                type="text"
+                id="clipFilenameInput"
+                class="input-text"
+                placeholder="例如：my_music_clip.mp3"
+              >
+            </div>
+            <button type="button" id="clipExportMp3Btn" class="btn-export-mp3">
+              <span id="clipExportBtnText">✂️ 剪輯並下載 MP3 音樂檔</span>
+              <span id="clipExportSpinner" class="spinner" style="display: none;"></span>
+            </button>
+          </div>
+
+          <!-- 剪輯完成備用下載與成品試聽列 -->
+          <div id="clipResultBox" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; padding: 1rem; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <span id="clipResultSummary" style="font-size: 0.88rem; color: #6ee7b7; font-weight: 600;"></span>
+              <a id="clipManualDownloadLink" class="btn-download-mp3" href="#" download="clip.mp3" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                ⬇ 再次下載 MP3
+              </a>
+            </div>
+            <audio id="clipResultAudio" controls style="height: 38px;"></audio>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -974,6 +1621,1001 @@
         audioElement.playbackRate = newRate;
       }
     });
+
+    // =========================================================================
+    // 獨立音樂剪輯功能板塊邏輯 (Audio Clipper / Trimmer)
+    // =========================================================================
+    (() => {
+      const tabLocalBtn = document.getElementById("tabLocalBtn");
+      const tabYoutubeBtn = document.getElementById("tabYoutubeBtn");
+      const panelLocalSource = document.getElementById("panelLocalSource");
+      const panelYoutubeSource = document.getElementById("panelYoutubeSource");
+
+      const localMediaInput = document.getElementById("localMediaInput");
+      const fileDropZone = document.getElementById("fileDropZone");
+      const ytUrlInput = document.getElementById("ytUrlInput");
+      const fillTestUrlBtn = document.getElementById("fillTestUrlBtn");
+      const loadYtBtn = document.getElementById("loadYtBtn");
+      const loadYtBtnText = document.getElementById("loadYtBtnText");
+      const loadYtSpinner = document.getElementById("loadYtSpinner");
+
+      const clipAlertBox = document.getElementById("clipAlertBox");
+      const clipWorkspace = document.getElementById("clipWorkspace");
+      const clipSourceTitle = document.getElementById("clipSourceTitle");
+      const clipAudioSpecs = document.getElementById("clipAudioSpecs");
+      const clipTotalDuration = document.getElementById("clipTotalDuration");
+      const clipSelectedDuration = document.getElementById("clipSelectedDuration");
+      const clipPlayheadReadout = document.getElementById("clipPlayheadReadout");
+
+      const waveformCanvas = document.getElementById("waveformCanvas");
+      const ctx = waveformCanvas.getContext("2d");
+
+      const clipStartRange = document.getElementById("clipStartRange");
+      const clipEndRange = document.getElementById("clipEndRange");
+      const clipStartInput = document.getElementById("clipStartInput");
+      const clipEndInput = document.getElementById("clipEndInput");
+      const clipStartFormatted = document.getElementById("clipStartFormatted");
+      const clipEndFormatted = document.getElementById("clipEndFormatted");
+      const setStartToPlayheadBtn = document.getElementById("setStartToPlayheadBtn");
+      const setEndToPlayheadBtn = document.getElementById("setEndToPlayheadBtn");
+
+      const clipPreviewBtn = document.getElementById("clipPreviewBtn");
+      const clipStopBtn = document.getElementById("clipStopBtn");
+      const clipLoopCheck = document.getElementById("clipLoopCheck");
+      const clipResetFullBtn = document.getElementById("clipResetFullBtn");
+
+      const clipFilenameInput = document.getElementById("clipFilenameInput");
+      const clipExportMp3Btn = document.getElementById("clipExportMp3Btn");
+      const clipExportBtnText = document.getElementById("clipExportBtnText");
+      const clipExportSpinner = document.getElementById("clipExportSpinner");
+      const clipResultBox = document.getElementById("clipResultBox");
+      const clipResultSummary = document.getElementById("clipResultSummary");
+      const clipManualDownloadLink = document.getElementById("clipManualDownloadLink");
+      const clipResultAudio = document.getElementById("clipResultAudio");
+
+      // 音訊與狀態變數
+      let audioCtx = null;
+      let decodedBuffer = null;
+      let waveformPeaks = []; // [{min, max}, ...]
+      let baseSourceName = "audio_clip";
+      let filenameManuallyEdited = false;
+
+      let totalDuration = 0;
+      let clipStart = 0;
+      let clipEnd = 0;
+      let playheadTime = 0;
+
+      // 試聽播放狀態
+      let activeSourceNode = null;
+      let isPlayingPreview = false;
+      let previewStartWallTime = 0;
+      let previewStartOffset = 0;
+      let rafId = null;
+
+      // 畫布拖拉狀態: null | "start" | "end" | "playhead"
+      let dragMode = null;
+
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function showClipAlert(msg, type = "error") {
+        clipAlertBox.textContent = msg;
+        clipAlertBox.className = `alert alert-${type}`;
+        clipAlertBox.style.display = "block";
+        if (type === "success") {
+          setTimeout(() => {
+            if (clipAlertBox.textContent === msg) {
+              clipAlertBox.style.display = "none";
+            }
+          }, 6000);
+        }
+      }
+
+      function hideClipAlert() {
+        clipAlertBox.style.display = "none";
+      }
+
+      // 秒數轉 MM:SS.d 格式
+      function formatTimeMMSS(sec) {
+        const s = Math.max(0, Number(sec) || 0);
+        const mins = Math.floor(s / 60);
+        const rem = s - mins * 60;
+        const wholeSecs = Math.floor(rem);
+        const tenths = Math.floor((rem - wholeSecs + 1e-6) * 10);
+        return `${String(mins).padStart(2, "0")}:${String(wholeSecs).padStart(2, "0")}.${tenths}`;
+      }
+
+      // 秒數轉時間軸刻度標籤 M:SS
+      function formatRulerTick(sec) {
+        const s = Math.max(0, Math.round(sec));
+        const mins = Math.floor(s / 60);
+        const rem = s % 60;
+        return `${mins}:${String(rem).padStart(2, "0")}`;
+      }
+
+      // 清理檔名非法字元
+      function sanitizeFilenameBase(name) {
+        return (name || "audio_clip")
+          .replace(/\.[^/.]+$/, "")
+          .replace(/[\\/:*?"<>|]+/g, "_")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 80) || "audio_clip";
+      }
+
+      function updateAutoFilename() {
+        if (filenameManuallyEdited) return;
+        const startStr = clipStart.toFixed(1);
+        const endStr = clipEnd.toFixed(1);
+        clipFilenameInput.value = `${baseSourceName}_${startStr}s-${endStr}s.mp3`;
+      }
+
+      clipFilenameInput.addEventListener("input", () => {
+        filenameManuallyEdited = true;
+      });
+
+      // 同步原生滑桿 CSS 變數與無障礙屬性 (遵循 modern-web-guidance slider 規範)
+      function syncSliderStyle(slider, val) {
+        const min = parseFloat(slider.min) || 0;
+        const max = parseFloat(slider.max) || 100;
+        slider.style.setProperty("--attr-min", min);
+        slider.style.setProperty("--attr-max", max);
+        slider.style.setProperty("--control-value", val);
+        slider.setAttribute("aria-valuetext", `${Number(val).toFixed(1)} 秒 (${formatTimeMMSS(val)})`);
+      }
+
+      // 切換來源分頁
+      tabLocalBtn.addEventListener("click", () => {
+        tabLocalBtn.classList.add("active");
+        tabYoutubeBtn.classList.remove("active");
+        panelLocalSource.classList.add("active");
+        panelYoutubeSource.classList.remove("active");
+      });
+
+      tabYoutubeBtn.addEventListener("click", () => {
+        tabYoutubeBtn.classList.add("active");
+        tabLocalBtn.classList.remove("active");
+        panelYoutubeSource.classList.add("active");
+        panelLocalSource.classList.remove("active");
+      });
+
+      // 快速帶入測試網址
+      fillTestUrlBtn.addEventListener("click", () => {
+        ytUrlInput.value = "https://www.youtube.com/watch?feature=shared&v=zXIxDoCRc84";
+        ytUrlInput.focus();
+      });
+
+      // 本機檔案點擊與拖放載入
+      fileDropZone.addEventListener("click", () => localMediaInput.click());
+
+      fileDropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        fileDropZone.classList.add("dragover");
+      });
+
+      fileDropZone.addEventListener("dragleave", () => {
+        fileDropZone.classList.remove("dragover");
+      });
+
+      fileDropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        fileDropZone.classList.remove("dragover");
+        const file = e.dataTransfer?.files?.[0];
+        if (file) {
+          handleLocalFile(file);
+        }
+      });
+
+      localMediaInput.addEventListener("change", () => {
+        const file = localMediaInput.files?.[0];
+        if (file) {
+          handleLocalFile(file);
+        }
+      });
+
+      async function handleLocalFile(file) {
+        hideClipAlert();
+        stopPreviewPlayback();
+        try {
+          showClipAlert(`正在讀取並解析本機檔案音軌：「${file.name}」...`, "success");
+          const arrayBuffer = await file.arrayBuffer();
+          const actx = getAudioContext();
+          const audioBuffer = await actx.decodeAudioData(arrayBuffer.slice(0));
+          setupLoadedAudio(audioBuffer, file.name);
+          showClipAlert(`成功載入本機音軌：「${file.name}」！請設定起訖時間後剪輯輸出。`, "success");
+        } catch (err) {
+          console.error(err);
+          showClipAlert(`無法從檔案解析出音軌（請確認該檔案包含有效音訊軌道）: ${err.message || err}`, "error");
+        }
+      }
+
+      // 從各種 YouTube 網址格式解析 11 碼 Video ID
+      function extractYoutubeVideoId(rawUrl) {
+        try {
+          const u = new URL(rawUrl);
+          if (u.hostname.includes("youtu.be")) {
+            return u.pathname.replace(/^\/+/, "").split("/")[0].slice(0, 11);
+          }
+          if (u.searchParams.get("v")) {
+            return u.searchParams.get("v").slice(0, 11);
+          }
+          const m = u.pathname.match(/\/(?:shorts|embed|v)\/([a-zA-Z0-9_-]{11})/);
+          if (m) return m[1];
+        } catch (e) {}
+        const fallback = rawUrl.match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+        return fallback ? fallback[1] : null;
+      }
+
+      // YouTube 音軌載入 (支援本機 run_web.py 後端 + GitHub Pages 靜態/雲端多層自動備援)
+      async function handleLoadYoutube() {
+        const url = ytUrlInput.value.trim();
+        if (!url) {
+          showClipAlert("請先輸入 YouTube 影片或音樂連結！", "error");
+          ytUrlInput.focus();
+          return;
+        }
+
+        const videoId = extractYoutubeVideoId(url);
+        if (!videoId) {
+          showClipAlert("無法識別有效的 YouTube 影片網址，請確認連結格式（如 https://www.youtube.com/watch?v=...）！", "error");
+          return;
+        }
+
+        hideClipAlert();
+        stopPreviewPlayback();
+        loadYtBtn.disabled = true;
+        loadYtBtnText.textContent = "擷取音軌中...";
+        loadYtSpinner.style.display = "inline-block";
+
+        try {
+          let audioArrayBuffer = null;
+          let videoTitle = `YouTube_${videoId}`;
+
+          // 1. 優先嘗試透過 noembed 取得標準影片標題 (純前端支援 CORS)
+          try {
+            const oembedRes = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`);
+            if (oembedRes.ok) {
+              const oembedData = await oembedRes.json();
+              if (oembedData && oembedData.title) {
+                videoTitle = oembedData.title;
+              }
+            }
+          } catch (e) {}
+
+          // 2. 第一層：嘗試連線本機 run_web.py 音軌擷取 API (支援 localhost 直接開啟，或從 GitHub Pages 連回本機 8000 埠)
+          const isLocalOrigin = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+          const localCandidates = isLocalOrigin
+            ? [`/api/youtube-audio?url=${encodeURIComponent(url)}`]
+            : [
+                `http://localhost:8000/api/youtube-audio?url=${encodeURIComponent(url)}`,
+                `http://127.0.0.1:8000/api/youtube-audio?url=${encodeURIComponent(url)}`
+              ];
+
+          for (const endpoint of localCandidates) {
+            try {
+              const res = await fetch(endpoint);
+              if (res.ok) {
+                const rawTitleHeader = res.headers.get("X-Video-Title");
+                if (rawTitleHeader) {
+                  videoTitle = decodeURIComponent(rawTitleHeader);
+                }
+                audioArrayBuffer = await res.arrayBuffer();
+                break;
+              }
+            } catch (e) {
+              // 本機伺服器未啟動時自動進入下一層備援
+            }
+          }
+
+          // 3. 第二層 (GitHub Pages 純靜態模式)：若為內建測試影片 zXIxDoCRc84，直接讀取靜態音軌檔 (免啟動本機後端亦可在 GitHub Pages 完美執行)
+          if (!audioArrayBuffer && videoId === "zXIxDoCRc84") {
+            try {
+              const staticRes = await fetch("yt_zXIxDoCRc84.m4a");
+              if (staticRes.ok) {
+                audioArrayBuffer = await staticRes.arrayBuffer();
+                if (videoTitle === `YouTube_${videoId}`) {
+                  videoTitle = "Please and Thank You Song | The Singing Walrus";
+                }
+              }
+            } catch (e) {}
+          }
+
+          // 4. 第三層：嘗試公開 Piped / Invidious 串流節點備援
+          if (!audioArrayBuffer) {
+            const publicApis = [
+              `https://pipedapi.kavin.rocks/streams/${videoId}`,
+              `https://api.piped.private.coffee/streams/${videoId}`,
+              `https://pipedapi.adminforge.de/streams/${videoId}`
+            ];
+            for (const api of publicApis) {
+              try {
+                const r = await fetch(api);
+                if (!r.ok) continue;
+                const data = await r.json();
+                if (data.title) videoTitle = data.title;
+                const streams = Array.isArray(data.audioStreams) ? data.audioStreams : [];
+                const bestStream = streams.find(s => s.mimeType && s.mimeType.includes("mp4")) || streams[0];
+                if (bestStream && bestStream.url) {
+                  const audioRes = await fetch(bestStream.url);
+                  if (audioRes.ok) {
+                    audioArrayBuffer = await audioRes.arrayBuffer();
+                    break;
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+
+          if (!audioArrayBuffer) {
+            throw new Error(
+              "目前處於純靜態網頁環境且公開 YouTube 代理節點受限。若要擷取任意 YouTube 連結，請在本機終端機執行 `python run_web.py`（GitHub Pages 網頁會自動連回本機服務擷取），或改用左側「📁 本機電腦載入」功能！"
+            );
+          }
+
+          loadYtBtnText.textContent = "解碼音軌波形中...";
+          const actx = getAudioContext();
+          const audioBuffer = await actx.decodeAudioData(audioArrayBuffer);
+
+          setupLoadedAudio(audioBuffer, videoTitle);
+          showClipAlert(`成功載入 YouTube 音軌：「${videoTitle}」！`, "success");
+        } catch (err) {
+          console.error(err);
+          showClipAlert(`YouTube 音軌載入失敗：${err.message}`, "error");
+        } finally {
+          loadYtBtn.disabled = false;
+          loadYtBtnText.textContent = "載入 YouTube 音軌";
+          loadYtSpinner.style.display = "none";
+        }
+      }
+
+      loadYtBtn.addEventListener("click", handleLoadYoutube);
+      ytUrlInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleLoadYoutube();
+      });
+
+      // 初始化載入後的音軌資料與波形預計算
+      function setupLoadedAudio(audioBuffer, sourceTitle) {
+        decodedBuffer = audioBuffer;
+        totalDuration = Number(audioBuffer.duration.toFixed(2));
+        clipStart = 0;
+        clipEnd = totalDuration;
+        playheadTime = 0;
+
+        baseSourceName = sanitizeFilenameBase(sourceTitle);
+        filenameManuallyEdited = false;
+
+        clipSourceTitle.textContent = sourceTitle;
+        clipSourceTitle.title = sourceTitle;
+        clipAudioSpecs.textContent = `${audioBuffer.sampleRate} Hz / ${audioBuffer.numberOfChannels === 1 ? "單聲道 (Mono)" : "立體聲 (Stereo)"}`;
+        clipTotalDuration.textContent = `${totalDuration.toFixed(1)} 秒 (${formatTimeMMSS(totalDuration)})`;
+
+        // 設定滑桿與秒數輸入框範圍
+        const stepVal = totalDuration < 10 ? "0.01" : "0.1";
+        [clipStartRange, clipEndRange, clipStartInput, clipEndInput].forEach(el => {
+          el.min = "0";
+          el.max = String(totalDuration);
+          el.step = stepVal;
+        });
+
+        computeWaveformPeaks(audioBuffer, 640);
+        clipWorkspace.classList.add("active");
+        clipResultBox.style.display = "none";
+
+        syncTimeControlsUI();
+        requestAnimationFrame(() => {
+          drawWaveform();
+          clipWorkspace.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      }
+
+      // 預計算音軌波形振幅峰值，提升拖拉與播放時的重繪效能
+      function computeWaveformPeaks(buffer, numBuckets = 640) {
+        const ch0 = buffer.getChannelData(0);
+        const ch1 = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : null;
+        const totalSamples = ch0.length;
+        const samplesPerBucket = Math.max(1, Math.floor(totalSamples / numBuckets));
+        const peaks = [];
+        let globalMax = 0.01;
+
+        for (let b = 0; b < numBuckets; b++) {
+          const startIdx = b * samplesPerBucket;
+          const endIdx = Math.min(totalSamples, startIdx + samplesPerBucket);
+          const stride = Math.max(1, Math.floor((endIdx - startIdx) / 64));
+          let minVal = 0;
+          let maxVal = 0;
+
+          for (let i = startIdx; i < endIdx; i += stride) {
+            const sample = ch1 ? (ch0[i] + ch1[i]) * 0.5 : ch0[i];
+            if (sample < minVal) minVal = sample;
+            if (sample > maxVal) maxVal = sample;
+          }
+
+          if (Math.abs(minVal) > globalMax) globalMax = Math.abs(minVal);
+          if (Math.abs(maxVal) > globalMax) globalMax = Math.abs(maxVal);
+          peaks.push({ min: minVal, max: maxVal });
+        }
+
+        // 正規化峰值至 [-1, 1] 讓波形清晰易讀
+        const scale = 1 / globalMax;
+        waveformPeaks = peaks.map(p => ({
+          min: Math.max(-1, p.min * scale),
+          max: Math.min(1, p.max * scale)
+        }));
+      }
+
+      // 同步所有時間控制元件與畫面
+      function syncTimeControlsUI(source = "") {
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        clipStart = Math.max(0, Math.min(clipStart, totalDuration - minGap));
+        clipEnd = Math.max(clipStart + minGap, Math.min(clipEnd, totalDuration));
+
+        if (playheadTime < clipStart || playheadTime > clipEnd) {
+          playheadTime = clipStart;
+        }
+
+        if (source !== "startInput") {
+          clipStartInput.value = clipStart.toFixed(1);
+        }
+        if (source !== "endInput") {
+          clipEndInput.value = clipEnd.toFixed(1);
+        }
+
+        clipStartRange.value = String(clipStart);
+        clipEndRange.value = String(clipEnd);
+        syncSliderStyle(clipStartRange, clipStart);
+        syncSliderStyle(clipEndRange, clipEnd);
+
+        clipStartFormatted.textContent = formatTimeMMSS(clipStart);
+        clipEndFormatted.textContent = formatTimeMMSS(clipEnd);
+
+        const selLen = Math.max(0, clipEnd - clipStart);
+        clipSelectedDuration.textContent = `${selLen.toFixed(1)} 秒 (${formatTimeMMSS(selLen)})`;
+        updatePlayheadReadout();
+        updateAutoFilename();
+        drawWaveform();
+      }
+
+      function updatePlayheadReadout() {
+        clipPlayheadReadout.textContent = `目前游標：${formatTimeMMSS(playheadTime)} (${playheadTime.toFixed(1)}s)`;
+      }
+
+      // 繪製音軌波形、時間軸刻度、起訖拖拉把手與播放游標
+      function drawWaveform() {
+        if (!decodedBuffer || waveformPeaks.length === 0) return;
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = waveformCanvas.getBoundingClientRect();
+        const cssWidth = Math.max(300, rect.width || 800);
+        const cssHeight = Math.max(140, rect.height || 170);
+
+        if (waveformCanvas.width !== Math.floor(cssWidth * dpr) || waveformCanvas.height !== Math.floor(cssHeight * dpr)) {
+          waveformCanvas.width = Math.floor(cssWidth * dpr);
+          waveformCanvas.height = Math.floor(cssHeight * dpr);
+        }
+
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        const W = cssWidth;
+        const H = cssHeight;
+        const rulerH = 26;
+        const waveTop = rulerH;
+        const waveH = H - rulerH - 8;
+        const midY = waveTop + waveH / 2;
+
+        // 背景
+        ctx.fillStyle = "#090d16";
+        ctx.fillRect(0, 0, W, H);
+
+        // 頂部時間軸背景
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(0, 0, W, rulerH);
+        ctx.strokeStyle = "#1e293b";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, rulerH);
+        ctx.lineTo(W, rulerH);
+        ctx.stroke();
+
+        // 計算合適的時間軸刻度間距
+        const targetTicks = Math.max(4, Math.floor(W / 85));
+        const rawStep = totalDuration / targetTicks;
+        const stepCandidates = [0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
+        let majorStep = stepCandidates.find(s => s >= rawStep) || Math.ceil(rawStep / 60) * 60;
+        const minorStep = majorStep / 5;
+
+        // 繪製時間軸小刻度與主刻度文字
+        ctx.font = "11px -apple-system, BlinkMacSystemFont, monospace";
+        ctx.textBaseline = "middle";
+
+        for (let t = 0; t <= totalDuration + 1e-4; t += minorStep) {
+          const x = (t / totalDuration) * W;
+          const isMajor = Math.abs(Math.round(t / majorStep) * majorStep - t) < 1e-3;
+          ctx.strokeStyle = isMajor ? "#64748b" : "#334155";
+          ctx.beginPath();
+          ctx.moveTo(x, isMajor ? 14 : 19);
+          ctx.lineTo(x, rulerH);
+          ctx.stroke();
+
+          if (isMajor) {
+            ctx.fillStyle = "#94a3b8";
+            const label = formatRulerTick(t);
+            const textW = ctx.measureText(label).width;
+            const labelX = Math.min(W - textW - 4, Math.max(4, x - textW / 2));
+            ctx.fillText(label, labelX, 9);
+          }
+        }
+
+        // 中線
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.15)";
+        ctx.beginPath();
+        ctx.moveTo(0, midY);
+        ctx.lineTo(W, midY);
+        ctx.stroke();
+
+        const startX = (clipStart / totalDuration) * W;
+        const endX = (clipEnd / totalDuration) * W;
+
+        // 選取區間高亮底色
+        ctx.fillStyle = "rgba(56, 189, 248, 0.11)";
+        ctx.fillRect(startX, waveTop, Math.max(1, endX - startX), waveH);
+
+        // 繪製波形柱
+        const numBars = waveformPeaks.length;
+        const barStep = W / numBars;
+        const barW = Math.max(1, barStep * 0.75);
+        const maxAmpH = (waveH / 2) * 0.88;
+
+        for (let i = 0; i < numBars; i++) {
+          const x = i * barStep;
+          const inSelection = x >= startX && x <= endX;
+          const peak = waveformPeaks[i];
+          const topY = midY - Math.max(0.02, peak.max) * maxAmpH;
+          const botY = midY - Math.min(-0.02, peak.min) * maxAmpH;
+
+          ctx.fillStyle = inSelection ? "#38bdf8" : "#334155";
+          ctx.fillRect(x, topY, barW, Math.max(2, botY - topY));
+        }
+
+        // 未選取區間暗化遮罩
+        ctx.fillStyle = "rgba(9, 13, 22, 0.58)";
+        if (startX > 0) {
+          ctx.fillRect(0, waveTop, startX, waveH);
+        }
+        if (endX < W) {
+          ctx.fillRect(endX, waveTop, W - endX, waveH);
+        }
+
+        // 選取框上下邊線
+        ctx.strokeStyle = "rgba(56, 189, 248, 0.65)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(startX, waveTop + 1, Math.max(1, endX - startX), waveH - 2);
+
+        // 播放游標線 (Playhead)
+        const playX = (playheadTime / totalDuration) * W;
+        ctx.strokeStyle = "#facc15";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(playX, rulerH);
+        ctx.lineTo(playX, H);
+        ctx.stroke();
+
+        // 播放游標頂部三角形
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.moveTo(playX - 5, rulerH);
+        ctx.lineTo(playX + 5, rulerH);
+        ctx.lineTo(playX, rulerH + 7);
+        ctx.closePath();
+        ctx.fill();
+
+        // 開始時間拖拉把手 (藍色)
+        drawHandle(ctx, startX, waveTop, waveH, "#38bdf8", `起 ${clipStart.toFixed(1)}s`, "left");
+
+        // 結束時間拖拉把手 (紫色)
+        drawHandle(ctx, endX, waveTop, waveH, "#c084fc", `終 ${clipEnd.toFixed(1)}s`, "right");
+
+        ctx.restore();
+      }
+
+      function drawHandle(context, x, topY, height, color, badgeText, align) {
+        context.strokeStyle = color;
+        context.lineWidth = 3;
+        context.beginPath();
+        context.moveTo(x, topY);
+        context.lineTo(x, topY + height);
+        context.stroke();
+
+        // 中央拖拉握把膠囊
+        const gripY = topY + height / 2;
+        context.fillStyle = color;
+        context.beginPath();
+        context.roundRect(x - 6, gripY - 14, 12, 28, 4);
+        context.fill();
+
+        context.strokeStyle = "#090d16";
+        context.lineWidth = 1.2;
+        context.beginPath();
+        context.moveTo(x - 2, gripY - 6);
+        context.lineTo(x - 2, gripY + 6);
+        context.moveTo(x + 2, gripY - 6);
+        context.lineTo(x + 2, gripY + 6);
+        context.stroke();
+
+        // 頂部秒數標籤膠囊
+        context.font = "bold 11px -apple-system, BlinkMacSystemFont, monospace";
+        const padX = 6;
+        const textW = context.measureText(badgeText).width;
+        const boxW = textW + padX * 2;
+        const boxH = 18;
+        let boxX = align === "left" ? x + 4 : x - boxW - 4;
+        const canvasCssW = waveformCanvas.getBoundingClientRect().width || 800;
+        if (boxX < 2) boxX = 2;
+        if (boxX + boxW > canvasCssW - 2) boxX = canvasCssW - boxW - 2;
+
+        context.fillStyle = color;
+        context.beginPath();
+        context.roundRect(boxX, topY + 4, boxW, boxH, 4);
+        context.fill();
+
+        context.fillStyle = "#090d16";
+        context.textBaseline = "middle";
+        context.fillText(badgeText, boxX + padX, topY + 4 + boxH / 2);
+      }
+
+      // 畫布滑鼠與觸控拖拉事件
+      function getCanvasPointerInfo(evt) {
+        const rect = waveformCanvas.getBoundingClientRect();
+        const x = Math.max(0, Math.min(rect.width, evt.clientX - rect.left));
+        const time = totalDuration > 0 ? (x / rect.width) * totalDuration : 0;
+        const startX = totalDuration > 0 ? (clipStart / totalDuration) * rect.width : 0;
+        const endX = totalDuration > 0 ? (clipEnd / totalDuration) * rect.width : 0;
+        return { x, time, startX, endX, width: rect.width };
+      }
+
+      waveformCanvas.addEventListener("pointerdown", (e) => {
+        if (!decodedBuffer || totalDuration <= 0) return;
+        waveformCanvas.setPointerCapture(e.pointerId);
+        const info = getCanvasPointerInfo(e);
+        const distStart = Math.abs(info.x - info.startX);
+        const distEnd = Math.abs(info.x - info.endX);
+        const hitThreshold = 14;
+
+        if (distStart <= hitThreshold && distStart <= distEnd) {
+          dragMode = "start";
+        } else if (distEnd <= hitThreshold) {
+          dragMode = "end";
+        } else {
+          dragMode = "playhead";
+          playheadTime = Math.max(clipStart, Math.min(clipEnd, info.time));
+          updatePlayheadReadout();
+          drawWaveform();
+          if (isPlayingPreview) {
+            startPreviewPlayback(playheadTime);
+          }
+        }
+      });
+
+      waveformCanvas.addEventListener("pointermove", (e) => {
+        if (!decodedBuffer || totalDuration <= 0) return;
+        const info = getCanvasPointerInfo(e);
+
+        if (!dragMode) {
+          const nearHandle = Math.abs(info.x - info.startX) <= 14 || Math.abs(info.x - info.endX) <= 14;
+          waveformCanvas.style.cursor = nearHandle ? "ew-resize" : "pointer";
+          return;
+        }
+
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        if (dragMode === "start") {
+          clipStart = Math.max(0, Math.min(info.time, clipEnd - minGap));
+          playheadTime = clipStart;
+          syncTimeControlsUI("canvas");
+        } else if (dragMode === "end") {
+          clipEnd = Math.min(totalDuration, Math.max(info.time, clipStart + minGap));
+          syncTimeControlsUI("canvas");
+        } else if (dragMode === "playhead") {
+          playheadTime = Math.max(clipStart, Math.min(clipEnd, info.time));
+          updatePlayheadReadout();
+          drawWaveform();
+        }
+      });
+
+      function endCanvasDrag(e) {
+        if (dragMode) {
+          if (isPlayingPreview && (dragMode === "start" || dragMode === "playhead")) {
+            startPreviewPlayback(playheadTime);
+          }
+          dragMode = null;
+        }
+      }
+
+      waveformCanvas.addEventListener("pointerup", endCanvasDrag);
+      waveformCanvas.addEventListener("pointercancel", endCanvasDrag);
+
+      window.addEventListener("resize", () => {
+        if (decodedBuffer) drawWaveform();
+      });
+
+      // 原生滑桿與直接輸入秒數連動事件
+      clipStartRange.addEventListener("input", () => {
+        const val = parseFloat(clipStartRange.value) || 0;
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        clipStart = Math.min(val, clipEnd - minGap);
+        playheadTime = clipStart;
+        syncTimeControlsUI("startRange");
+      });
+
+      clipEndRange.addEventListener("input", () => {
+        const val = parseFloat(clipEndRange.value) || 0;
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        clipEnd = Math.max(val, clipStart + minGap);
+        syncTimeControlsUI("endRange");
+      });
+
+      clipStartInput.addEventListener("input", () => {
+        const val = parseFloat(clipStartInput.value);
+        if (Number.isNaN(val)) return;
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        clipStart = Math.max(0, Math.min(val, clipEnd - minGap));
+        playheadTime = clipStart;
+        syncTimeControlsUI("startInput");
+      });
+
+      clipStartInput.addEventListener("change", () => {
+        syncTimeControlsUI();
+      });
+
+      clipEndInput.addEventListener("input", () => {
+        const val = parseFloat(clipEndInput.value);
+        if (Number.isNaN(val)) return;
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        clipEnd = Math.min(totalDuration, Math.max(val, clipStart + minGap));
+        syncTimeControlsUI("endInput");
+      });
+
+      clipEndInput.addEventListener("change", () => {
+        syncTimeControlsUI();
+      });
+
+      setStartToPlayheadBtn.addEventListener("click", () => {
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        if (playheadTime < clipEnd - minGap) {
+          clipStart = playheadTime;
+          syncTimeControlsUI();
+        }
+      });
+
+      setEndToPlayheadBtn.addEventListener("click", () => {
+        const minGap = totalDuration >= 0.5 ? 0.1 : 0.01;
+        if (playheadTime > clipStart + minGap) {
+          clipEnd = playheadTime;
+          syncTimeControlsUI();
+        }
+      });
+
+      clipResetFullBtn.addEventListener("click", () => {
+        if (!decodedBuffer) return;
+        stopPreviewPlayback();
+        clipStart = 0;
+        clipEnd = totalDuration;
+        playheadTime = 0;
+        syncTimeControlsUI();
+      });
+
+      // 試聽選取區間播放控制
+      function startPreviewPlayback(fromTime = null) {
+        if (!decodedBuffer) return;
+        stopPreviewNodeOnly();
+
+        const actx = getAudioContext();
+        const startAt = (fromTime !== null && fromTime >= clipStart && fromTime < clipEnd - 0.05)
+          ? fromTime
+          : clipStart;
+        const durationToPlay = Math.max(0.05, clipEnd - startAt);
+
+        const source = actx.createBufferSource();
+        source.buffer = decodedBuffer;
+        source.connect(actx.destination);
+
+        activeSourceNode = source;
+        isPlayingPreview = true;
+        previewStartWallTime = actx.currentTime;
+        previewStartOffset = startAt;
+        clipPreviewBtn.textContent = "⏸ 暫停試聽";
+
+        source.start(0, startAt, durationToPlay);
+
+        const tick = () => {
+          if (!isPlayingPreview) return;
+          const elapsed = actx.currentTime - previewStartWallTime;
+          const cur = previewStartOffset + elapsed;
+          if (cur >= clipEnd) {
+            if (clipLoopCheck.checked) {
+              startPreviewPlayback(clipStart);
+              return;
+            } else {
+              stopPreviewPlayback(true);
+              return;
+            }
+          }
+          playheadTime = cur;
+          updatePlayheadReadout();
+          drawWaveform();
+          rafId = requestAnimationFrame(tick);
+        };
+
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function stopPreviewNodeOnly() {
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        if (activeSourceNode) {
+          try {
+            activeSourceNode.stop();
+            activeSourceNode.disconnect();
+          } catch (e) {}
+          activeSourceNode = null;
+        }
+      }
+
+      function stopPreviewPlayback(resetToStart = false) {
+        stopPreviewNodeOnly();
+        isPlayingPreview = false;
+        clipPreviewBtn.textContent = "▶ 試聽選取區間";
+        if (resetToStart) {
+          playheadTime = clipStart;
+        }
+        if (decodedBuffer) {
+          updatePlayheadReadout();
+          drawWaveform();
+        }
+      }
+
+      clipPreviewBtn.addEventListener("click", () => {
+        if (!decodedBuffer) return;
+        if (isPlayingPreview) {
+          stopPreviewPlayback(false);
+        } else {
+          startPreviewPlayback(playheadTime >= clipEnd - 0.05 ? clipStart : playheadTime);
+        }
+      });
+
+      clipStopBtn.addEventListener("click", () => {
+        stopPreviewPlayback(true);
+      });
+
+      // 將 Float32Array [-1, 1] 轉為 Int16Array [-32768, 32767]
+      function floatTo16BitPCM(float32Arr) {
+        const int16 = new Int16Array(float32Arr.length);
+        for (let i = 0; i < float32Arr.length; i++) {
+          const s = Math.max(-1, Math.min(1, float32Arr[i]));
+          int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        return int16;
+      }
+
+      // 將選取區間之 AudioBuffer 編碼為 MP3 Blob (支援單聲道與雙聲道立體聲 192kbps)
+      async function encodeClipToMp3Blob(buffer, startSec, endSec, kbps = 192) {
+        if (typeof lamejs === "undefined" || !lamejs.Mp3Encoder) {
+          throw new Error("MP3 編碼模組 (lamejs) 尚未載入完成，請重新整理網頁後再試。");
+        }
+
+        const sampleRate = buffer.sampleRate;
+        const numChannels = Math.min(2, buffer.numberOfChannels);
+        const startSample = Math.max(0, Math.floor(startSec * sampleRate));
+        const endSample = Math.min(buffer.length, Math.floor(endSec * sampleRate));
+
+        if (endSample <= startSample) {
+          throw new Error("結束時間必須大於開始時間！");
+        }
+
+        const leftFloat = buffer.getChannelData(0).subarray(startSample, endSample);
+        const leftPCM = floatTo16BitPCM(leftFloat);
+        const rightPCM = numChannels === 2
+          ? floatTo16BitPCM(buffer.getChannelData(1).subarray(startSample, endSample))
+          : null;
+
+        const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, kbps);
+        const mp3Data = [];
+        const sampleBlockSize = 1152;
+        const totalSamples = leftPCM.length;
+
+        for (let i = 0; i < totalSamples; i += sampleBlockSize) {
+          const leftChunk = leftPCM.subarray(i, i + sampleBlockSize);
+          let mp3buf;
+          if (numChannels === 2 && rightPCM) {
+            const rightChunk = rightPCM.subarray(i, i + sampleBlockSize);
+            mp3buf = mp3encoder.encodeBuffer(leftChunk, rightChunk);
+          } else {
+            mp3buf = mp3encoder.encodeBuffer(leftChunk);
+          }
+          if (mp3buf.length > 0) {
+            mp3Data.push(mp3buf);
+          }
+
+          // 每處理約 15 萬個取樣點讓出主執行緒一次，保持 UI 流暢與進度更新
+          if (i > 0 && (i % (sampleBlockSize * 128)) === 0) {
+            const pct = Math.min(99, Math.round((i / totalSamples) * 100));
+            clipExportBtnText.textContent = `MP3 編碼中 (${pct}%)...`;
+            await new Promise(r => setTimeout(r, 0));
+          }
+        }
+
+        const endBuf = mp3encoder.flush();
+        if (endBuf.length > 0) {
+          mp3Data.push(endBuf);
+        }
+
+        return new Blob(mp3Data, { type: "audio/mp3" });
+      }
+
+      // 輸出並自動下載 MP3 至預設下載資料夾
+      clipExportMp3Btn.addEventListener("click", async () => {
+        if (!decodedBuffer) {
+          showClipAlert("請先載入本機影音檔或 YouTube 音軌！", "error");
+          return;
+        }
+
+        hideClipAlert();
+        stopPreviewPlayback(false);
+
+        clipExportMp3Btn.disabled = true;
+        clipExportBtnText.textContent = "MP3 編碼轉換中...";
+        clipExportSpinner.style.display = "inline-block";
+
+        try {
+          await new Promise(r => setTimeout(r, 20));
+          const mp3Blob = await encodeClipToMp3Blob(decodedBuffer, clipStart, clipEnd, 192);
+          const blobUrl = URL.createObjectURL(mp3Blob);
+
+          let outName = (clipFilenameInput.value || "").trim();
+          if (!outName) {
+            outName = `${baseSourceName}_${clipStart.toFixed(1)}s-${clipEnd.toFixed(1)}s.mp3`;
+          }
+          if (!outName.toLowerCase().endsWith(".mp3")) {
+            outName += ".mp3";
+          }
+
+          // 自動觸發瀏覽器下載至預設下載資料夾
+          const tempLink = document.createElement("a");
+          tempLink.href = blobUrl;
+          tempLink.download = outName;
+          document.body.appendChild(tempLink);
+          tempLink.click();
+          document.body.removeChild(tempLink);
+
+          // 同步顯示剪輯結果試聽與備用下載按鈕
+          const clipLen = (clipEnd - clipStart).toFixed(1);
+          const sizeKb = (mp3Blob.size / 1024).toFixed(1);
+          clipResultSummary.textContent = `✅ 已下載至預設下載資料夾：${outName} ｜ 區間：${clipStart.toFixed(1)}s ~ ${clipEnd.toFixed(1)}s (共 ${clipLen} 秒, ${sizeKb} KB)`;
+          clipManualDownloadLink.href = blobUrl;
+          clipManualDownloadLink.download = outName;
+          clipResultAudio.src = blobUrl;
+          clipResultBox.style.display = "flex";
+
+          showClipAlert(`MP3 剪輯完成！已自動下載「${outName}」至您的預設下載資料夾。`, "success");
+        } catch (err) {
+          console.error(err);
+          showClipAlert(`MP3 剪輯匯出失敗：${err.message}`, "error");
+        } finally {
+          clipExportMp3Btn.disabled = false;
+          clipExportBtnText.textContent = "✂️ 剪輯並下載 MP3 音樂檔";
+          clipExportSpinner.style.display = "none";
+        }
+      });
+    })();
   </script>
 </body>
 </html>
