@@ -1194,7 +1194,7 @@
             <div class="form-group" style="margin-bottom: 0;">
               <label for="clipFilenameInput">
                 <span>輸出 MP3 檔案名稱（可自由修改）</span>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">192kbps 高音質 ｜ 自動加 .mp3</span>
+                <span id="clipQualityBadge" style="font-size: 0.75rem; color: var(--text-muted);">依原始最高音質輸出 ｜ 自動加 .mp3</span>
               </label>
               <input
                 type="text"
@@ -1665,6 +1665,7 @@
       const clipResetFullBtn = document.getElementById("clipResetFullBtn");
 
       const clipFilenameInput = document.getElementById("clipFilenameInput");
+      const clipQualityBadge = document.getElementById("clipQualityBadge");
       const clipExportMp3Btn = document.getElementById("clipExportMp3Btn");
       const clipExportBtnText = document.getElementById("clipExportBtnText");
       const clipExportSpinner = document.getElementById("clipExportSpinner");
@@ -1679,6 +1680,26 @@
       let waveformPeaks = []; // [{min, max}, ...]
       let baseSourceName = "audio_clip";
       let filenameManuallyEdited = false;
+      let currentSourceKbps = 320; // 依原始檔案或網址內含之最高音質動態決定
+
+      // 依據原始音軌資訊計算對應之最高 MP3 編碼位元率 (lamejs 支援最高 320kbps 標準)
+      function resolveMaxMp3Kbps(durationSec, byteLength = 0, rawAbrKbps = 0, fileNameOrMime = "") {
+        const tiers = [128, 160, 192, 224, 256, 320];
+        const lower = (fileNameOrMime || "").toLowerCase();
+        // 若為無損音訊或影音容器檔 (WAV/FLAC/MP4/MKV/MOV/AVI)，直接取 MP3 最高規格 320kbps
+        if (/\.(wav|flac|aiff|alac|mp4|mkv|mov|avi|wmv|flv|m4v)$/i.test(lower) || lower.includes("video/") || lower.includes("wav") || lower.includes("flac")) {
+          return 320;
+        }
+        let estKbps = Number(rawAbrKbps) || 0;
+        if (estKbps <= 0 && byteLength > 0 && durationSec > 0) {
+          estKbps = (byteLength * 8 / 1000) / durationSec;
+        }
+        if (estKbps <= 0) {
+          return 320;
+        }
+        // 向上對齊至不低於原始串流音質的標準 MP3 位元率檔位 (最高 320kbps)
+        return tiers.find(t => t >= estKbps) || 320;
+      }
 
       let totalDuration = 0;
       let clipStart = 0;
@@ -1829,7 +1850,10 @@
           const arrayBuffer = await file.arrayBuffer();
           const actx = getAudioContext();
           const audioBuffer = await actx.decodeAudioData(arrayBuffer.slice(0));
-          setupLoadedAudio(audioBuffer, file.name);
+          setupLoadedAudio(audioBuffer, file.name, {
+            byteLength: arrayBuffer.byteLength,
+            fileNameOrMime: `${file.name} ${file.type || ""}`
+          });
           showClipAlert(`成功載入本機音軌：「${file.name}」！請設定起訖時間後剪輯輸出。`, "success");
         } catch (err) {
           console.error(err);
@@ -1872,12 +1896,13 @@
         hideClipAlert();
         stopPreviewPlayback();
         loadYtBtn.disabled = true;
-        loadYtBtnText.textContent = "擷取音軌中...";
+        loadYtBtnText.textContent = "擷取最高音質音軌中...";
         loadYtSpinner.style.display = "inline-block";
 
         try {
           let audioArrayBuffer = null;
           let videoTitle = `YouTube_${videoId}`;
+          let detectedAbrKbps = 0;
 
           // 1. 優先嘗試透過 noembed 取得標準影片標題 (純前端支援 CORS)
           try {
@@ -1907,6 +1932,10 @@
                 if (rawTitleHeader) {
                   videoTitle = decodeURIComponent(rawTitleHeader);
                 }
+                const rawBitrateHeader = res.headers.get("X-Audio-Bitrate");
+                if (rawBitrateHeader) {
+                  detectedAbrKbps = parseInt(rawBitrateHeader, 10) || 0;
+                }
                 audioArrayBuffer = await res.arrayBuffer();
                 break;
               }
@@ -1928,7 +1957,7 @@
             } catch (e) {}
           }
 
-          // 4. 第三層：嘗試公開 Piped / Invidious 串流節點備援
+          // 4. 第三層：嘗試公開 Piped / Invidious 串流節點備援 (依 bitrate 由高至低排序取最高音質)
           if (!audioArrayBuffer) {
             const publicApis = [
               `https://pipedapi.kavin.rocks/streams/${videoId}`,
@@ -1941,11 +1970,16 @@
                 if (!r.ok) continue;
                 const data = await r.json();
                 if (data.title) videoTitle = data.title;
-                const streams = Array.isArray(data.audioStreams) ? data.audioStreams : [];
-                const bestStream = streams.find(s => s.mimeType && s.mimeType.includes("mp4")) || streams[0];
+                const streams = Array.isArray(data.audioStreams)
+                  ? [...data.audioStreams].sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))
+                  : [];
+                const bestStream = streams[0];
                 if (bestStream && bestStream.url) {
                   const audioRes = await fetch(bestStream.url);
                   if (audioRes.ok) {
+                    if (bestStream.bitrate) {
+                      detectedAbrKbps = Math.round(bestStream.bitrate / 1000);
+                    }
                     audioArrayBuffer = await audioRes.arrayBuffer();
                     break;
                   }
@@ -1962,9 +1996,13 @@
 
           loadYtBtnText.textContent = "解碼音軌波形中...";
           const actx = getAudioContext();
-          const audioBuffer = await actx.decodeAudioData(audioArrayBuffer);
+          const audioBuffer = await actx.decodeAudioData(audioArrayBuffer.slice(0));
 
-          setupLoadedAudio(audioBuffer, videoTitle);
+          setupLoadedAudio(audioBuffer, videoTitle, {
+            byteLength: audioArrayBuffer.byteLength,
+            abrKbps: detectedAbrKbps,
+            fileNameOrMime: "audio/youtube"
+          });
           showClipAlert(`成功載入 YouTube 音軌：「${videoTitle}」！`, "success");
         } catch (err) {
           console.error(err);
@@ -1982,7 +2020,7 @@
       });
 
       // 初始化載入後的音軌資料與波形預計算
-      function setupLoadedAudio(audioBuffer, sourceTitle) {
+      function setupLoadedAudio(audioBuffer, sourceTitle, sourceInfo = {}) {
         decodedBuffer = audioBuffer;
         totalDuration = Number(audioBuffer.duration.toFixed(2));
         clipStart = 0;
@@ -1992,9 +2030,20 @@
         baseSourceName = sanitizeFilenameBase(sourceTitle);
         filenameManuallyEdited = false;
 
+        currentSourceKbps = resolveMaxMp3Kbps(
+          totalDuration,
+          sourceInfo.byteLength || 0,
+          sourceInfo.abrKbps || 0,
+          sourceInfo.fileNameOrMime || sourceTitle
+        );
+
         clipSourceTitle.textContent = sourceTitle;
         clipSourceTitle.title = sourceTitle;
-        clipAudioSpecs.textContent = `${audioBuffer.sampleRate} Hz / ${audioBuffer.numberOfChannels === 1 ? "單聲道 (Mono)" : "立體聲 (Stereo)"}`;
+        const chText = audioBuffer.numberOfChannels === 1 ? "單聲道 (Mono)" : "立體聲 (Stereo)";
+        clipAudioSpecs.textContent = `${audioBuffer.sampleRate} Hz / ${chText} / 最高音質 ${currentSourceKbps}kbps`;
+        if (clipQualityBadge) {
+          clipQualityBadge.textContent = `原始最高音質 (${currentSourceKbps}kbps) ｜ 自動加 .mp3`;
+        }
         clipTotalDuration.textContent = `${totalDuration.toFixed(1)} 秒 (${formatTimeMMSS(totalDuration)})`;
 
         // 設定滑桿與秒數輸入框範圍
@@ -2577,7 +2626,7 @@
 
         try {
           await new Promise(r => setTimeout(r, 20));
-          const mp3Blob = await encodeClipToMp3Blob(decodedBuffer, clipStart, clipEnd, 192);
+          const mp3Blob = await encodeClipToMp3Blob(decodedBuffer, clipStart, clipEnd, currentSourceKbps);
           const blobUrl = URL.createObjectURL(mp3Blob);
 
           let outName = (clipFilenameInput.value || "").trim();
@@ -2599,7 +2648,7 @@
           // 同步顯示剪輯結果試聽與備用下載按鈕
           const clipLen = (clipEnd - clipStart).toFixed(1);
           const sizeKb = (mp3Blob.size / 1024).toFixed(1);
-          clipResultSummary.textContent = `✅ 已下載至預設下載資料夾：${outName} ｜ 區間：${clipStart.toFixed(1)}s ~ ${clipEnd.toFixed(1)}s (共 ${clipLen} 秒, ${sizeKb} KB)`;
+          clipResultSummary.textContent = `✅ 已下載至預設下載資料夾：${outName} ｜ 區間：${clipStart.toFixed(1)}s ~ ${clipEnd.toFixed(1)}s (共 ${clipLen} 秒, ${currentSourceKbps}kbps, ${sizeKb} KB)`;
           clipManualDownloadLink.href = blobUrl;
           clipManualDownloadLink.download = outName;
           clipResultAudio.src = blobUrl;

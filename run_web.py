@@ -25,15 +25,17 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 
-def extract_youtube_audio(youtube_url: str) -> tuple[bytes, str, str, float]:
+def extract_youtube_audio(youtube_url: str) -> tuple[bytes, str, str, float, int]:
     """
-    使用 yt-dlp 擷取 YouTube 影片的最佳音軌 (不需 ffmpeg 轉檔，直接取原生 m4a/webm 音軌供瀏覽器 Web Audio API 解碼)。
-    回傳: (audio_bytes, mime_type, video_title, duration_sec)
+    使用 yt-dlp 擷取 YouTube 影片內含的最高音質音軌 (bestaudio)。
+    回傳: (audio_bytes, mime_type, video_title, duration_sec, abr_kbps)
     """
     with tempfile.TemporaryDirectory(prefix="yt_audio_") as tmpdir:
         tmp_path = Path(tmpdir)
         outtmpl = str(tmp_path / "audio.%(ext)s")
-        fmt = "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio[ext=mp3]/bestaudio"
+        # 直接選取原始影片內含之最高音質音軌 (bestaudio 自動依音質排序取最高者)
+        fmt = "bestaudio/best"
+        abr_kbps = 0.0
 
         # 優先使用當前 Python 環境的 yt_dlp 套件
         try:
@@ -52,6 +54,7 @@ def extract_youtube_audio(youtube_url: str) -> tuple[bytes, str, str, float]:
                 info = ydl.extract_info(youtube_url, download=True)
                 title = info.get("title") or "youtube_audio"
                 duration = float(info.get("duration") or 0.0)
+                abr_kbps = float(info.get("abr") or info.get("tbr") or 0.0)
         except ImportError:
             # 若使用者以全域 python 啟動而未載入 .venv，自動尋找 .venv 或系統的 yt-dlp 執行檔
             venv_ytdlp = DIRECTORY / ".venv" / "Scripts" / "yt-dlp.exe"
@@ -65,7 +68,7 @@ def extract_youtube_audio(youtube_url: str) -> tuple[bytes, str, str, float]:
                 "--js-runtimes", "node",
                 "--remote-components", "ejs:github",
                 "-f", fmt,
-                "--print", "%(title)s\n%(duration)s",
+                "--print", "%(title)s\n%(duration)s\n%(abr)s",
                 "-o", outtmpl,
                 youtube_url,
             ]
@@ -87,6 +90,10 @@ def extract_youtube_audio(youtube_url: str) -> tuple[bytes, str, str, float]:
                 duration = float(lines[1]) if len(lines) >= 2 else 0.0
             except ValueError:
                 duration = 0.0
+            try:
+                abr_kbps = float(lines[2]) if len(lines) >= 3 and lines[2] != "NA" else 0.0
+            except ValueError:
+                abr_kbps = 0.0
 
         files = list(tmp_path.glob("audio.*"))
         if not files:
@@ -106,7 +113,9 @@ def extract_youtube_audio(youtube_url: str) -> tuple[bytes, str, str, float]:
         }
         mime_type = mime_map.get(ext, "application/octet-stream")
         audio_bytes = audio_file.read_bytes()
-        return audio_bytes, mime_type, title, duration
+        if abr_kbps <= 0 and duration > 0:
+            abr_kbps = (len(audio_bytes) * 8.0 / 1000.0) / duration
+        return audio_bytes, mime_type, title, duration, int(round(abr_kbps))
 
 
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -126,7 +135,7 @@ class TTSRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Private-Network", "true")
         self.send_header(
             "Access-Control-Expose-Headers",
-            "X-Video-Title, X-Video-Duration, Content-Disposition",
+            "X-Video-Title, X-Video-Duration, X-Audio-Bitrate, Content-Disposition",
         )
         super().end_headers()
 
@@ -156,15 +165,16 @@ class TTSRequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         try:
-            print(f"[*] 正在擷取 YouTube 音軌: {youtube_url}")
-            audio_bytes, mime_type, title, duration = extract_youtube_audio(youtube_url)
-            print(f"[OK] 擷取成功: {title} ({len(audio_bytes) / 1024:.1f} KB, {duration:.1f}s)")
+            print(f"[*] 正在擷取 YouTube 最高音質音軌: {youtube_url}")
+            audio_bytes, mime_type, title, duration, abr_kbps = extract_youtube_audio(youtube_url)
+            print(f"[OK] 擷取成功: {title} ({len(audio_bytes) / 1024:.1f} KB, {duration:.1f}s, ~{abr_kbps}kbps)")
 
             self.send_response(200)
             self.send_header("Content-Type", mime_type)
             self.send_header("Content-Length", str(len(audio_bytes)))
             self.send_header("X-Video-Title", urllib.parse.quote(title))
             self.send_header("X-Video-Duration", str(duration))
+            self.send_header("X-Audio-Bitrate", str(abr_kbps))
             self.end_headers()
             self.wfile.write(audio_bytes)
         except Exception as e:
