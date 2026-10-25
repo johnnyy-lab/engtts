@@ -1881,23 +1881,39 @@
       // 透過雲端轉檔與 CORS 代理擷取任意 YouTube 音軌 (供 GitHub Pages 網路使用者免裝程式直接使用)
       async function fetchYoutubeViaCloud(videoId) {
         const proxyWrap = (targetUrl) => `https://cf-proxy.eidoriantan.com/?url=${encodeURIComponent(targetUrl)}`;
+        const fetchWithRetry = async (targetUrl, maxRetries = 3) => {
+          let lastRes = null;
+          for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            const res = await fetch(proxyWrap(targetUrl));
+            lastRes = res;
+            if (res.status === 429) {
+              await new Promise(r => setTimeout(r, 4200 + attempt * 1500));
+              continue;
+            }
+            return res;
+          }
+          return lastRes;
+        };
+
         const ytCanonical = `https://www.youtube.com/watch?v=${videoId}`;
         const converterHosts = ["https://loader.to", "https://p.savenow.to"];
 
         let jobId = null;
         let cloudTitle = null;
+        let progressEndpoint = null;
         let activeHost = converterHosts[0];
 
-        // 步驟 A：發起雲端音軌擷取任務 (取 m4a 原生高音質音軌，速度最快且無損原始音訊品質)
+        // 步驟 A：發起雲端音軌擷取任務 (使用標準 mp3 串流格式，確保所有瀏覽器 AudioContext.decodeAudioData 100% 穩定解碼)
         for (const host of converterHosts) {
           try {
-            const initUrl = `${host}/ajax/download.php?format=m4a&url=${encodeURIComponent(ytCanonical)}`;
-            const initRes = await fetch(proxyWrap(initUrl));
-            if (!initRes.ok) continue;
+            const initUrl = `${host}/ajax/download.php?format=mp3&url=${encodeURIComponent(ytCanonical)}`;
+            const initRes = await fetchWithRetry(initUrl, 2);
+            if (!initRes || !initRes.ok) continue;
             const initData = await initRes.json();
             if (initData && initData.success && initData.id) {
               jobId = initData.id;
               cloudTitle = initData.title || initData.info?.title || null;
+              progressEndpoint = initData.progress_url || `${host}/ajax/progress.php?id=${encodeURIComponent(jobId)}`;
               activeHost = host;
               break;
             }
@@ -1910,15 +1926,15 @@
 
         // 步驟 B：輪詢雲端任務進度直到取得 download_url
         let downloadUrl = null;
-        for (let poll = 0; poll < 45; poll++) {
-          await new Promise(r => setTimeout(r, 1400));
-          const pct = Math.min(95, Math.max(5, Math.round(((poll + 1) / 14) * 90)));
+        for (let poll = 0; poll < 40; poll++) {
+          await new Promise(r => setTimeout(r, 2600));
+          const pct = Math.min(95, Math.max(8, Math.round(((poll + 1) / 10) * 90)));
           loadYtBtnText.textContent = `雲端擷取音軌中 (${pct}%)...`;
 
           try {
-            const progUrl = `${activeHost}/ajax/progress.php?id=${encodeURIComponent(jobId)}`;
-            const progRes = await fetch(proxyWrap(progUrl));
-            if (!progRes.ok) continue;
+            const progUrl = progressEndpoint || `${activeHost}/ajax/progress.php?id=${encodeURIComponent(jobId)}`;
+            const progRes = await fetchWithRetry(progUrl, 2);
+            if (!progRes || !progRes.ok) continue;
             const progData = await progRes.json();
 
             if (progData && progData.download_url) {
@@ -1941,11 +1957,14 @@
 
         // 步驟 C：透過 CORS 代理下載完成之音軌二進位資料
         loadYtBtnText.textContent = "下載音軌資料中...";
-        const dlRes = await fetch(proxyWrap(downloadUrl));
-        if (!dlRes.ok) {
-          throw new Error(`下載音軌串流失敗 (HTTP ${dlRes.status})`);
+        const dlRes = await fetchWithRetry(downloadUrl, 3);
+        if (!dlRes || !dlRes.ok) {
+          throw new Error(`下載音軌串流失敗 (HTTP ${dlRes ? dlRes.status : "Network Error"})`);
         }
         const buffer = await dlRes.arrayBuffer();
+        if (!buffer || buffer.byteLength < 1024) {
+          throw new Error("下載之音軌資料不完整，請再試一次。");
+        }
         return { buffer, title: cloudTitle };
       }
 
