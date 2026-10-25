@@ -1050,9 +1050,6 @@
           <div class="form-group" style="margin-bottom: 0.65rem;">
             <label for="ytUrlInput">
               <span>YouTube 影片或音樂連結（自動擷取音軌）</span>
-              <button type="button" id="fillTestUrlBtn" class="btn-small" style="font-size: 0.75rem; padding: 0.2rem 0.55rem;">
-                帶入測試網址
-              </button>
             </label>
             <div class="yt-input-row">
               <input
@@ -1634,7 +1631,6 @@
       const localMediaInput = document.getElementById("localMediaInput");
       const fileDropZone = document.getElementById("fileDropZone");
       const ytUrlInput = document.getElementById("ytUrlInput");
-      const fillTestUrlBtn = document.getElementById("fillTestUrlBtn");
       const loadYtBtn = document.getElementById("loadYtBtn");
       const loadYtBtnText = document.getElementById("loadYtBtnText");
       const loadYtSpinner = document.getElementById("loadYtSpinner");
@@ -1806,12 +1802,6 @@
         tabLocalBtn.classList.remove("active");
         panelYoutubeSource.classList.add("active");
         panelLocalSource.classList.remove("active");
-      });
-
-      // 快速帶入測試網址
-      fillTestUrlBtn.addEventListener("click", () => {
-        ytUrlInput.value = "https://www.youtube.com/watch?feature=shared&v=zXIxDoCRc84";
-        ytUrlInput.focus();
       });
 
       // 本機檔案點擊與拖放載入
